@@ -1,25 +1,64 @@
 use std::fmt;
 use std::ptr::NonNull;
+use pin_project::pin_project;
 
 use crate::descriptor::{FieldDescriptor, MessageDescriptor, Parent};
 
+#[pin_project]
 #[derive(Debug)]
 pub struct Reflection<T> {
     pub info: Message,
+    #[pin]
     pub inner: T,
 }
 
-impl<T> Reflection<T> {
+impl<T: ToFieldRefs> Reflection<T> {
+    pub fn new(inner: T, descriptor: &'static MessageDescriptor, parent: Parent) -> Self {
+        let mut reflection = Reflection {
+            info: Message::new(descriptor, parent),
+            inner,
+        };
+        reflection.wire_self_references();
+        reflection
+    }
+
+    fn wire_self_references(&mut self) {
+        todo!()
+    }
+
     pub fn into_inner(self) -> T {
         self.inner
     }
 }
 
+
+
+#[derive(Debug)]
+pub enum FieldRef<'a> {
+    Int(&'a i32),
+    Message(Vec<FieldRef<'a>>),
+}
+
+pub trait ToFieldRefs {
+    fn to_field_refs(&self) -> Vec<FieldRef>;
+}
+
 pub struct Message {
     pub descriptor: &'static MessageDescriptor,
-    pub parent: fn() -> Parent,
+    pub parent: Parent,
     pub nested: Vec<Message>,
     pub fields: Vec<Field>,
+}
+
+impl Message {
+    pub fn new(descriptor: &'static MessageDescriptor, parent: Parent) -> Self {
+        Message {
+            descriptor,
+            parent,
+            nested: Vec::new(),
+            fields: Vec::new(),
+        }
+    }
 }
 
 // Custom impl to deal with parent/child cycles
@@ -36,7 +75,7 @@ impl fmt::Debug for Message {
 
 pub struct Field {
     pub descriptor: &'static FieldDescriptor,
-    pub parent: fn() -> Parent,
+    pub parent: Parent,
     pub value: ValueRaw,
 }
 

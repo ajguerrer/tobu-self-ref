@@ -13,6 +13,13 @@ pub struct MessageDescriptor {
 #[derive(Debug)]
 pub struct FieldDescriptor {
     pub id: i32,
+    pub ty: FieldType,
+}
+
+#[derive(Debug)]
+pub enum FieldType {
+    Int,
+    Message,
 }
 
 #[derive(Debug)]
