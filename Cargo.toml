@@ -1,5 +1,5 @@
 [package]
-name = "self-ref"
+name = "tobu_self_ref"
 version = "0.1.0"
 authors = ["Andrew Guerrero <ajguerrer@gmail.com>"]
 edition = "2018"
@@ -8,4 +8,3 @@ edition = "2018"
 
 [dependencies]
 once_cell = "1.4"
-pin-project = "1.0"
